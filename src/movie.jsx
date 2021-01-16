@@ -7,14 +7,16 @@ export default class Movies extends Component {
  state ={
    movies: [],
    nominatedMovies: [],
-   title: ''
+   title: '',
+   loading: false
  }
 
 
 
  handleSearchMovies = (title) => {
+   this.setState({loading: true})
    axios.get(`https://www.omdbapi.com/?type=movie&s=${title}&apikey=ea144ab5`).then(movies => {
-     this.setState({ movies: movies.data.Search})
+     this.setState({ movies: movies.data.Search, loading: false})
    })
  }
 
@@ -37,15 +39,14 @@ removeFromNominated = id => {
 
 
   render() {
-    const { title, movies, nominatedMovies} = this.state;
-    // imdbID: "tt0206275"
+    const { title, movies, nominatedMovies, loading} = this.state;
 
     return (
       <div id="container">
         <h3>Movie Search</h3>
         <input placeholder='type in movie name' name="search" onChange={this.handleChange}/>
         <button className='btn' onClick={() => this.handleSearchMovies(title)}>Search movie</button>
-        <div className="all-list-wrapper">
+       {loading ? <h2>Loading Movies ...</h2> : ( <div className="all-list-wrapper">
         <div className='movie-list'>
           {movies.length> 0 && movies.map(movie => {
             const isNominated = nominatedMovies.find(nominated => nominated.imdbID === movie.imdbID);
@@ -81,7 +82,6 @@ removeFromNominated = id => {
             return (
               <div className='nominated-movie' style={{backgroundImage: `url(${movie.Poster})`}}>
                 <h2 className='nominated-title'>{movie.Title}</h2>
-                {/* <img src={movie.Poster} alt="movie" /> */}
                 <p>{movie.Year}</p>
                 <button className='action-btn' onClick={() => { this.removeFromNominated(movie.imdbID)}}>Remove</button>
               </div>
@@ -89,7 +89,7 @@ removeFromNominated = id => {
           })}
         </div>}
         <ToastContainer position="top-right" type="success" />
-        </div>
+        </div>) }
       </div>
     )
   }
